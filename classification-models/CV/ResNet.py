@@ -145,46 +145,45 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        print(x.shape)
         x = self.conv1(x)
-        print(x.shape)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-        print(x.shape)
+
         x = self.layer1(x)
-        print(x.shape)
+
         x = self.layer2(x)
-        print(x.shape)
+
         x = self.layer3(x)
-        print(x.shape)
+
         x = self.layer4(x)
-        print(x.shape)
+
         x = self.avgpool(x)
-        print(x.shape)
+        
         x = x.view(x.size(0), -1)
-        print(x.shape)
         x = self.fc(x)
         return x
 
 if __name__ == '__main__':
     # 生成随机输入
     random_input = torch.randn(1, 3, 224, 224)  # 批量大小为 3，通道数为 3，图像尺寸为 224x224
-    model = ResNet(Bottleneck, [3, 4, 6, 3])
+    # model = ResNet(Bottleneck, [3, 4, 6, 3]) # Resnet50 
+    model = ResNet(Bottleneck, [2, 2, 2, 2]) # Resnet18 18是指有权重的层数 比如卷积层和线性层 1+16+1=18
+    
+    print(model)
+    
+    # # 加载预训练权重
+    # pretrained_dict = torch.load("resnet50.pth")
 
-    # 加载预训练权重
-    pretrained_dict = torch.load("resnet50.pth")
+    # # 移除最后一层的权重
+    # pretrained_dict = {k: v for k, v in pretrained_dict.items() if k not in ["fc.weight", "fc.bias"]}
 
-    # 移除最后一层的权重
-    pretrained_dict = {k: v for k, v in pretrained_dict.items() if k not in ["fc.weight", "fc.bias"]}
+    # # 更新模型权重
+    # model.load_state_dict(pretrained_dict, strict=False)
 
-    # 更新模型权重
-    model.load_state_dict(pretrained_dict, strict=False)
-
-    # 替换最后一层以匹配新的分类任务
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 10)
-
+    # # 替换最后一层以匹配新的分类任务
+    # num_ftrs = model.fc.in_features
+    # model.fc = nn.Linear(num_ftrs, 10)
 
     # 运行模型
     output = model(random_input)
