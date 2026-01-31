@@ -8,4 +8,10 @@ if ([string]::IsNullOrWhiteSpace($commitMessage)) {
 }
 
 git commit -m $commitMessage
-Write-Host "提交成功！"
+
+# 推送到远程仓库
+$branchName = git branch --show-current
+Write-Host "正在推送更改到分支: $branchName"
+git push origin $branchName
+
+Write-Host "提交并推送成功！"
