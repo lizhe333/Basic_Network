@@ -30,10 +30,11 @@ class Bottleneck(nn.Module):
     expansion = 4
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False)  # Corrected line
+        #一般的最佳实践是在第二个卷积层进行下采样，而不是第一个卷积层。
+        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, stride=1, bias=False)  # Corrected line
         self.bn1 = nn.BatchNorm2d(planes)
 
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
@@ -105,11 +106,16 @@ class ResNet(nn.Module):
         self.avgpool = nn.AvgPool2d(kernel_size=7)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
+        #遍历所有的模块，对卷积层和批量归一化层进行初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
+                #对卷积层使用Kaiming初始化
+                #使用均值为0,标准差为sqrt(2/n)的正态分布
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 m.weight.data.normal_(0, math.sqrt(2. / n))
             elif isinstance(m, nn.BatchNorm2d):
+                #对批量归一化层的权重和偏置进行初始化
+                #使得初始的时候批量归一化层不起作用
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
