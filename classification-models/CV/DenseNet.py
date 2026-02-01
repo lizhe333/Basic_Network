@@ -13,9 +13,11 @@ class BasicBlock(nn.Module):
                                padding=1, bias=False)
         self.droprate = dropRate
     def forward(self, x):
+        #使用前归一化，避免梯度消失 
         out = self.conv1(self.relu(self.bn1(x)))
         if self.droprate > 0:
             out = F.dropout(out, p=self.droprate, training=self.training)
+        #与ResNet的不同之处，这里是按照通道进行拼接而非相加
         return torch.cat([x, out], 1)
 
 class BottleneckBlock(nn.Module):
