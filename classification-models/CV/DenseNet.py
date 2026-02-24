@@ -56,6 +56,7 @@ class TransitionBlock(nn.Module):
         return F.avg_pool2d(out, 2)
 
 class DenseBlock(nn.Module):
+    #每一层新增的特征图数量为growth_rate
     def __init__(self, nb_layers, in_planes, growth_rate, block, dropRate=0.0):
         super(DenseBlock, self).__init__()
         self.layer = self._make_layer(block, in_planes, growth_rate, nb_layers, dropRate)
